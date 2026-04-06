@@ -1,17 +1,21 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
 from django.db import models
-from django.utils.encoding import python_2_unicode_compatible
+from django.db.models import Index, UniqueConstraint
 
-@python_2_unicode_compatible
 class Author(models.Model):
     name = models.CharField(max_length=100)
     
     def __str__(self):
         return self.name
 
+    class Meta:
+        indexes = [Index(fields=['name'])]
+        constraints = [UniqueConstraint(fields=['name'], name='unique_author_name')]
+
 class Book(models.Model):
     title = models.CharField(max_length=100)
-    # Missing on_delete parameter! (Django 2.0+ requires it)
-    author = models.ForeignKey(Author)
+    author = models.ForeignKey(Author, on_delete=models.CASCADE)
+
+    class Meta:
+        indexes = [Index(fields=['title'])]
+        constraints = [UniqueConstraint(fields=['title', 'author'], name='unique_book_title_author')]
